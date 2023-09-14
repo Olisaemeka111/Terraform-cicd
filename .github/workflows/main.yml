@@ -1,0 +1,42 @@
+name: Terraform Workflow
+
+on:
+  push:
+    branches:
+      - main # Adjust this branch name as needed
+  pull_request:
+    branches:
+      - main # Adjust this branch name as needed
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.0.0 # Adjust to your desired Terraform version
+
+    - name: Initialize Terraform
+      run: terraform init
+
+    - name: Validate Terraform
+      run: terraform validate
+
+    - name: Plan Terraform
+      run: terraform plan -out=tfplan
+
+    - name: Apply Terraform
+      run: terraform apply -auto-approve tfplan
+
+    - name: Destroy Terraform (Cleanup)
+      run: terraform destroy -auto-approve
+      if: success() # Only run on successful builds
+
+    - name: Cleanup
+      run: rm -rf .terraform* tfplan
+
